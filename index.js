@@ -9,11 +9,11 @@ const port = process.env.PORT || 4800;
 const createLogger = require('./utilities/logger');
 const {checkDatabaseConnection} = require('./utilities/db-connection');
 const { initializeRedis } = require('./utilities/redis-connection');
+const { initQueue } = require('./utilities/amqp');
 const logger = createLogger('Server');
 
 const startServer = async () => {
-        await checkDatabaseConnection();
-        await initializeRedis();
+        await Promise.all([checkDatabaseConnection(), initializeRedis(), initQueue()]);
         var app = express();
         let server = http.createServer(app);
         var io = new socketIO.Server(server);

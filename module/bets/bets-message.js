@@ -32,6 +32,17 @@ let bets = [];
 let settlements = [];
 let lobbyData = {};
 
+
+const currentRoundBets = (socket) => {
+    const betData = {};
+    const filteredBets = bets.map(e=> cleanData(e, 'bet'));
+    const filteredSettlements = settlements.map(e=> cleanData(e, 'cashout'));
+    betData.bets = filteredBets;
+    betData.settlement = filteredSettlements;
+    return socket.emit('game_status', JSON.stringify(betData));
+};
+
+
 const setCurrentLobby = (data) => {
     lobbyData = data;
 };
@@ -68,8 +79,8 @@ const placeBet = async (io, socket, [lobby_id, max_mult, status, user_id, operat
                 return logEventAndEmitResponse(socket, data, 'Session Timed Out', 'bet', io);
             }
         }
-        let { name, balance, avatar, session_token, game_id, id } = userData;
-        const betObj = { bet_id, name, balance, avatar, token: session_token, maxAutoCashout, socket_id: socket.id, game_id };
+        let { name, balance, session_token, game_id } = userData;
+        const betObj = { bet_id, name, balance, token: session_token, maxAutoCashout, socket_id: socket.id, game_id };
         if (bet_amount && bet_amount > +balance) {
             return logEventAndEmitResponse(socket, data, 'Insufficient Balance', 'bet');
         }
@@ -86,7 +97,7 @@ const placeBet = async (io, socket, [lobby_id, max_mult, status, user_id, operat
         await setCache(`${operator_id}:${user_id}`, JSON.stringify({ ...userData, balance }));
         betObj.balance = balance
         bets.push(betObj);
-        let playerDetails = { id: user_id, name, balance, avatar, operator_id: operator_id }
+        let playerDetails = { id: user_id, name, balance, operator_id: operator_id }
         logger.info(JSON.stringify({ req: data, res: betObj }));
         socket.emit("info", playerDetails);
         const cleanBetObj = cleanData(betObj, 'bet');
@@ -306,12 +317,12 @@ const cashOut = async (io, socket, [max_mult, status, maxAutoCashout, ...betId],
         }
 
         // Emit events
-        socket.emit("info", { id: user_id, name: betObj.name, balance: betObj.balance, avatar: betObj.avatar, operator_id });
+        socket.emit("info", { id: user_id, name: betObj.name, balance: betObj.balance, operator_id });
         settlements.push(betObj);
         cashoutLogger.info(JSON.stringify({ req: CashObj, res: betObj }));
         const user_settlements = (settlements.filter(e => e.token === token && e.plane_status === 'cashout')).map(e => cleanData(e, 'cashout'));
         cashOutBets.push(betId);
-        io.to(socket_id).emit('singleCashout', user_settlements);
+        socket.emit('singleCashout', user_settlements);
         const cleanSettlementObj = cleanData(betObj, "cashout")
         io.emit("cashout", cleanSettlementObj);
         if (!userData) {
@@ -408,4 +419,4 @@ const createRoundStats = (data, settlements) => {
 };
 
 
-module.exports = { initBet, settleBet, settleCallBacks, handleRejectedResult, setCurrentLobby };
+module.exports = { initBet, settleBet, settleCallBacks, handleRejectedResult, setCurrentLobby, currentRoundBets };

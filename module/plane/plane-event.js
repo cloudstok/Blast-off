@@ -24,8 +24,8 @@ const initLobby = async (io) => {
     let inc = 1
     const end_delay = 2;
     odds.total_players = await getPlayerCount();
-    const max_mult = generateOdds().mult;
-    // const max_mult = 30;
+    // const max_mult = generateOdds().mult;
+    const max_mult = 5;
     for (let x = 0; x < start_delay; x++) {
         io.emit("plane", `${lobbyId}:${inc}:0`);
         inc++
@@ -72,7 +72,6 @@ const initLobby = async (io) => {
     }
     odds = {}
     const history = { time: new Date(), lobbyId, start_delay, end_delay, max_mult };
-    io.emit("history", JSON.stringify(history));
     setCurrentLobby({});
     logger.info(JSON.stringify(history));
     await insertLobbies(history);
