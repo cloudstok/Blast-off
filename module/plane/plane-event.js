@@ -16,7 +16,7 @@ let odds = {}
 const initLobby = async (io) => {
     await getMaxMultOdds(io);
     const lobbyId = Date.now();
-    let recurLobbyData = { lobbyId, status: 0, isWebhook: 0}
+    let recurLobbyData = { lobbyId, status: 0, isWebhook: 0, ongoingMaxMult: 0}
     setCurrentLobby(recurLobbyData);
     odds.lobby_id = lobbyId;
     odds.start_time = Date.now();
@@ -56,7 +56,8 @@ const initLobby = async (io) => {
         else {
             init_val = init_val * 1.005;
         }
-
+        recurLobbyData['ongoingMaxMult'] = init_val.toFixed(2);
+        setCurrentLobby(recurLobbyData);
         await sleep(100)
     } while (init_val < max_mult);
     odds.max_mult = max_mult

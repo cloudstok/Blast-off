@@ -418,5 +418,15 @@ const createRoundStats = (data, settlements) => {
     };
 };
 
+const disConnect = async(io, socket) => {
+    if(bets.length > 0){
+        await Promise.all(bets.map(async bet=> {
+            if(!bet.hasOwnProperty('plane_status') && bet.socket_id == socket.id){
+                await cashOut(io, socket, [lobbyData['ongoingMaxMult'], lobbyData['status'], bet.maxAutoCashout, ...bet.bet_id.split(':')]);
+            }
+        }));
+    }
+}
 
-module.exports = { initBet, settleBet, settleCallBacks, handleRejectedResult, setCurrentLobby, currentRoundBets };
+
+module.exports = { initBet, settleBet, settleCallBacks, handleRejectedResult, setCurrentLobby, currentRoundBets, disConnect };

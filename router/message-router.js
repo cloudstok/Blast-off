@@ -1,4 +1,4 @@
-const { initBet, currentRoundBets } = require("../module/bets/bets-message");
+const { initBet, currentRoundBets, disConnect } = require("../module/bets/bets-message");
 const { getMaxMultOdds } = require("../module/plane/plane-event");
 const { initPlayer } = require("../module/players/player-message");
 const createLogger = require('../utilities/logger');
@@ -15,7 +15,8 @@ const messageRouter = async (io, socket) => {
             case 'RC' : return currentRoundBets(socket);
             case 'MXO' : return getMaxMultOdds(io);
         }
-    })
+    });
+    socket.on('disconnect', async()=> await disConnect(io, socket));
 }
 
 
