@@ -23,7 +23,7 @@ jobs:
         scp -r -o StrictHostKeyChecking=no * ubuntu@${{ secrets.EC2_HOST_BLAST_OFF_BACKEND_PROD }}:/home/ubuntu/blast-off
     - name: Install dependencies and restart PM2
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST_TWIST_BACKEND_PROD }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST_BLAST_OFF_BACKEND_PROD }} << 'EOF'
             # Navigate to the project directory
           cd /home/ubuntu/
           
