@@ -24,8 +24,7 @@ const initLobby = async (io) => {
     let inc = 1
     const end_delay = 2;
     odds.total_players = await getPlayerCount();
-    // const max_mult = generateOdds().mult;
-    const max_mult = 5;
+    const max_mult = generateOdds().mult;
     for (let x = 0; x < start_delay; x++) {
         io.emit("plane", `${lobbyId}:${inc}:0`);
         inc++
